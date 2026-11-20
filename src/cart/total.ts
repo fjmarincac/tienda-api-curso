@@ -20,8 +20,8 @@ export function calculateTotals(lines: PricedLine[], coupon: Coupon | null): Tot
 
 function couponDiscount(coupon: Coupon, subtotalCents: number): number {
   if (subtotalCents < coupon.minSubtotalCents) return 0;
-  if (coupon.type === 'percent') {
-    return Math.round((subtotalCents * coupon.value) / 100);
-  }
-  return coupon.value;
+  const discount =
+    coupon.type === 'percent' ? Math.round((subtotalCents * coupon.value) / 100) : coupon.value;
+  // El descuento queda entre 0 y el subtotal: ni total negativo (issue 1) ni recargos
+  return Math.max(0, Math.min(discount, subtotalCents));
 }

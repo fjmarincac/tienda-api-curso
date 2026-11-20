@@ -213,6 +213,25 @@ describe('cupones', () => {
     expect(res.body.error.message).toContain('30,00');
   });
 
+  it('el total no queda en negativo con un cupón fijo mayor que el subtotal (issue 1)', async () => {
+    createCoupon({ code: 'FIJO25', type: 'fixed', value: 2500 });
+    await addToCart(ANA, 4);
+    await api()
+      .post('/api/cart/coupon')
+      .set(await authHeader(ANA))
+      .send({ code: 'FIJO25' });
+
+    const res = await api()
+      .get('/api/cart')
+      .set(await authHeader(ANA));
+
+    expect(res.body).toMatchObject({
+      subtotalCents: 1295,
+      discountCents: 1295,
+      totalCents: 0,
+    });
+  });
+
   it('quita el cupón', async () => {
     await addToCart(ANA, 7);
     await api()
